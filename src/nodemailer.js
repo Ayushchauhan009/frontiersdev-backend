@@ -7,8 +7,14 @@ async function handler(event) {
 
 
 
+    const { requestBody } = JSON.parse(event.body);
+    console.log(requestBody);
+
     // Assuming the event body is JSON stringified with the form data
-    const { name, email, message } = JSON.parse(event.body);
+    const { name, email, message } = requestBody;
+    console.log(name);
+    console.log(email);
+    console.log(message);
 
     // Prepare CORS response headers
     const corsHeaders = {
