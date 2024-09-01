@@ -1,15 +1,10 @@
-import nodemailer from 'nodemailer';
-import cors from 'cors';
-
-const corsHandler = cors({
-  origin: '*',
-  methods: ['OPTIONS', 'POST', 'GET'],
-  allowedHeaders: ['Content-Type'],
-})
+const nodemailer = require("nodemailer");
 
 export async function handler(event) {
   const username = process.env.NODEMAILER_MAIL;
   const password = process.env.NODEMAILER_PASS;
+
+
 
   // Assuming the event body is JSON stringified with the form data
   const { name, email, message } = JSON.parse(event.body);
