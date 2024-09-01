@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-export default async function handler(event) {
+async function handler(event) {
   const username = process.env.NODEMAILER_MAIL;
   const password = process.env.NODEMAILER_PASS;
 
@@ -60,3 +60,6 @@ export default async function handler(event) {
     };
   }
 }
+
+
+module.exports = handler;
