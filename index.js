@@ -1,65 +1,29 @@
-const nodemailer = require("nodemailer");
+const express = require('express');
+const cors = require('cors');
+const handler = require('./src/nodemailer');
 
-async function handler(event) {
-  const username = process.env.NODEMAILER_MAIL;
-  const password = process.env.NODEMAILER_PASS;
+const app = express();
+const PORT = process.env.PORT || 3001;
 
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-
-  // Assuming the event body is JSON stringified with the form data
-  const { name, email, message } = JSON.parse(event.body);
-
-  // Prepare CORS response headers
-  const corsHeaders = {
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
+// Define route to use the handler
+app.post('/send-email', async (req, res) => {
+  const event = {
+    httpMethod: req.method,
+    body: JSON.stringify(req.body),
   };
 
-  if (event.httpMethod === 'OPTIONS') {
-    // Return CORS preflight response
-    return {
-      statusCode: 204,
-      headers: corsHeaders,
-    };
-  }
+  // Call the handler function with the event
+  const response = await handler(event);
 
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    port: 587,
-    auth: {
-      user: username,
-      pass: password,
-    },
-  });
+  // Send the response from the handler back to the client
+  res.status(response.statusCode).json(JSON.parse(response.body));
+});
 
-  try {
-    await transporter.sendMail({
-      from: username, // It should be your username to avoid issues with Gmail's 'from' address policy
-      to: 'ai.aayush10@gmail.com',
-      replyTo: email,
-      subject: `Congratulations, A New Project from ${name}`,
-      html: `
-        <p>Name: ${name}</p>
-        <p>Email: ${email}</p>
-        <p>Message: ${message}</p>
-      `,
-    });
-
-    return {
-      statusCode: 200,
-      headers: corsHeaders,
-      body: JSON.stringify({ message: 'Success: email was sent' }),
-    };
-  } catch (error) {
-    console.error(error);
-    return {
-      statusCode: 500,
-      headers: corsHeaders,
-      body: JSON.stringify({ message: 'COULD NOT SEND MESSAGE' }),
-    };
-  }
-}
-
-
-module.exports = handler;
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
